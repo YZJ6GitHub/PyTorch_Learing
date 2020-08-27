@@ -1,0 +1,59 @@
+public Mat verticalProject(Mat img) {
+		
+		Mat mResult = Mat.zeros(img.size(),CvType.CV_8UC1);
+		int iRows = img.rows();
+		int iCols = img.cols();
+		List<Integer>proNum = new ArrayList<Integer>();
+		
+		for(int iCol = 0; iCol < iCols; iCol++)  {
+			int iNum = 0;
+			for(int iRow = 0; iRow < iRows; iRow++) {
+				double[] data = img.get(iRow,iCol);
+				if(data[0] == 255)
+					iNum++;
+			}
+			proNum.add(iNum);
+		}
+		for(int iCol = 0; iCol < iCols; iCol++) {
+			int iWhiteNum = proNum.get(iCol);
+			if(iWhiteNum ==0)
+				continue;
+			for(int iRow = iRows - 1; iRow > iWhiteNum; iRow--)
+				mResult.put(iRow, iCol, 255);
+		}
+		
+		return mResult;
+	}
+	
+
+public List<Rect>GetRectResult(int iNum, Mat img){
+		 List<Rect>sResult = new  ArrayList<Rect>();
+		 
+		 Rect roi=new Rect(ixLU,iyLU, ixRD - ixLU,iyRD - iyLU);
+		 Mat mSrc = new Mat(img,roi);
+		 Mat Gray = mSrc.clone();
+		 Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+		 Imgproc.morphologyEx(mSrc, Gray, Imgproc.MORPH_BLACKHAT, kernel);
+		 Mat binary = Gray.clone();
+		 if(Gray.channels() != 1)
+			 Imgproc.cvtColor(Gray, binary, Imgproc.COLOR_BGR2GRAY);
+		 Imgproc.Canny(binary, binary, 70, 150, 3, true);
+		 Mat structImage = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 1));
+		 Imgproc.dilate(binary, binary, structImage);
+		 Imgproc.erode(binary, binary, structImage);
+		 	 
+		 List<MatOfPoint> contours=new ArrayList<MatOfPoint>();
+		 List<Rect> boundRect = new ArrayList<Rect>();
+		 Mat hierarchy = new Mat();
+		 Imgproc.findContours(binary, contours, hierarchy, Imgproc.RETR_EXTERNAL , Imgproc.CHAIN_APPROX_SIMPLE);
+		 
+		 for(int i=0;i<contours.size();i++) {
+			 Rect rect = Imgproc.boundingRect(contours.get(i));
+			 sResult.add(rect);
+			 Imgproc.rectangle(img, boundRect.get(i).tl(), boundRect.get(i).br(), color, 2, 8, 0);
+			 }
+		 return sResult;
+	}
+	
+
+	
