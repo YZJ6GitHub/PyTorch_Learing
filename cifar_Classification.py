@@ -168,7 +168,7 @@ print('\nTest Accuracy (Overall): %2d%% (%2d/%2d)' % (
 
 # plot the images in the batch, along with predicted and true la
 
-
+#神经网络优化器优化的对象是网络的参数，因此优化器的输入参数是网络的参数
    
 
 
